@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="src/Backend.Application/Backend.Application.csproj" />
+  <Project Path="src/Backend.Domain/Backend.Domain.csproj" />
+  <Project Path="src/Backend.Infrastructure/Backend.Infrastructure.csproj" />
+  <Project Path="src/Backend.Tests/Backend.Tests.csproj" Id="455e6ffb-5446-444d-ae09-8ddb61c58bee" />
+  <Project Path="src/Backend.WebAPI/Backend.WebAPI.csproj" />
+  <Project Path="src/Frontend.Blazor/Frontend.Blazor.csproj" Id="050f5478-e37e-412f-b23b-4c8cabe54b0d" />
+  <Project Path="src/Frontend.Shared/Frontend.Shared.csproj" />
+</Solution>

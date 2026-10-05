@@ -1,0 +1,33 @@
+﻿@page "/authentication/login"
+@page "/authentication/login/{*route}"
+@inject INotificationService NotificationService
+
+<FluentMessageBarProvider Section="@MESSAGEBAR_SECTION" Margin="@Margin.Vertical2" />
+<h2>Login</h2>
+<FluentStack Orientation="Orientation.Vertical">
+    <EditForm Model="@User" OnValidSubmit="@LoginUser">
+        <DataAnnotationsValidator />
+        <div>
+            <FluentTextInput Label="Email"
+                             Placeholder="Enter your Email"
+                             Required="true"
+                             @bind-Value="User.Email" />
+            <ValidationMessage For="@(() => User.Email)" />
+        </div>
+        <div>
+            <FluentTextInput type="password"
+                             Label="Password"
+                             Placeholder="Password"
+                             TextFieldType="TextFieldType.Password"
+                             Required="true"
+                             @bind-Value="User.Password" />
+            <ValidationMessage For="@(() => User.Password)" />
+        </div>
+        <FluentButton Appearance="ButtonAppearance.Primary"
+                      Loading="@IsLoading"
+                      IconStart="@(new Icons.Regular.Size20.Person())"
+                      Type="ButtonType.Submit">
+            Login
+        </FluentButton>
+    </EditForm>
+</FluentStack>

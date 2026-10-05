@@ -1,0 +1,32 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Frontend.Blazor
+@using Frontend.Blazor.Layout
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Authorization
+
+@using Frontend.Shared
+@using Frontend.Shared.CookieStorage.Contracts
+@using Frontend.Shared.Helper.Contracts
+@using Frontend.Shared.Models
+@using Frontend.Shared.Models.Admin.Audit
+@using Frontend.Shared.Models.Admin.Settings
+@using Frontend.Shared.Models.Admin.Users
+@using Frontend.Shared.Models.Authentication
+@using Frontend.Shared.Models.Seo
+@using Frontend.Shared.Services
+@using Frontend.Shared.Services.Contracts
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IAuthenticationService AuthenticationService
+@inject ITokenService TokenService
+@inject NavigationManager NavigationManager
+
+@inject IDialogService DialogService

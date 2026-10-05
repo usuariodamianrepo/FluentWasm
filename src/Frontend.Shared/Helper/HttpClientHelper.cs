@@ -1,0 +1,38 @@
+﻿namespace Frontend.Shared.Helper
+{
+    using System.Net.Http.Headers;
+
+    using Frontend.Shared;
+    using Frontend.Shared.Helper.Contracts;
+
+    public class HttpClientHelper : IHttpClientHelper
+    {
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ITokenService _tokenService;
+
+        public HttpClientHelper(IHttpClientFactory clientFactory, ITokenService tokenService)
+        {
+            _clientFactory = clientFactory;
+            _tokenService = tokenService;
+        }
+
+        public HttpClient GetPublicClient()
+        {
+            return _clientFactory.CreateClient(Constant.ApiClient.PublicName);
+        }
+
+        public async Task<HttpClient> GetPrivateClientAsync()
+        {
+            var client = _clientFactory.CreateClient(Constant.ApiClient.PrivateName);
+            string token = await _tokenService.GetJwtTokenAsync(Constant.TokenStorage.Key);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return client;
+            }
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return client;
+        }
+    }
+}

@@ -1,0 +1,36 @@
+﻿@page "/authentication/logout"
+@inject Frontend.Blazor.Authentication.Providers.IAuthenticatedClientStateCleaner AuthenticatedClientStateCleaner
+@inject Frontend.Blazor.Authentication.Providers.IAuthenticationStateNotifier AuthenticationStateNotifier
+@inject Frontend.Blazor.Authentication.Providers.IAuthenticationSessionEventPublisher SessionEventPublisher
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await AuthenticationService.Logout();
+        await TokenService.RemoveJwtTokenAsync(Constant.TokenStorage.Key);
+        await AuthenticatedClientStateCleaner.ClearAsync();
+        AuthenticationStateNotifier.NotifyAuthenticationState();
+        await SessionEventPublisher.PublishSignedOutAsync();
+
+        // if (response.Success)
+        // {
+        //     var message = string.IsNullOrWhiteSpace(response.Message)
+        //         ? "You have been signed out successfully."
+        //         : response.Message;
+
+        //     NotificationService.NotifySuccess(message, "Signed out", NotificationKind.Authentication, addToInbox: false, link: "/authentication/login/account");
+        // }
+        // else
+        // {
+        //     NotificationService.NotifyWarning(
+        //         "You were signed out locally, but we could not confirm the server logout request.",
+        //         "Logout",
+        //         NotificationKind.Authentication,
+        //         addToInbox: false,
+        //         link: "/authentication/login/account");
+        // }
+
+        NavigationManager.NavigateTo("/authentication/login/account");
+    }
+}

@@ -1,0 +1,110 @@
+﻿namespace Frontend.Blazor.Authentication.Components
+{
+    using Microsoft.FluentUI.AspNetCore.Components;
+    using System.Security.Claims;
+
+    using Frontend.Blazor.Authentication.Providers;
+    using Frontend.Blazor.Services;
+    using Frontend.Shared;
+    using Frontend.Shared.Models.Authentication;
+
+    using Microsoft.AspNetCore.Components;
+
+    public partial class Login
+    {
+        const string MESSAGEBAR_SECTION = "MESSAGEBAR_SERVICE_DEFAULT";
+        private readonly AsyncActionGate _loginGate = new();
+        private string _alertType = string.Empty;
+        private string _message = string.Empty;
+        private bool IsLoading = false;
+
+        [Inject]
+        private IAuthenticationSessionEventPublisher SessionEventPublisher { get; set; } = default!;
+
+        [Parameter]
+        public string Route { get; set; } = null!;
+
+        public LoginUser User { get; set; } = new();
+
+        private bool IsSubmitting => _loginGate.IsRunning;
+
+        protected override async Task OnParametersSetAsync()
+        {
+            var authenticationState = await this.AuthStateProvider.GetAuthenticationStateAsync();
+            if (authenticationState.User.Identity?.IsAuthenticated != true)
+            {
+                return;
+            }
+
+            var targetRoute = ResolveTargetRoute(authenticationState.User);
+            this.NavigationManager.NavigateTo(targetRoute, replace: true);
+        }
+
+        private async Task LoginUser()
+        {
+            await _loginGate.RunAsync(async () =>
+            {
+                await ResetStatusAsync();
+                await CompleteLoginAsync();
+            });
+        }
+
+        private async Task StartDemo(string role)
+        {
+            await _loginGate.RunAsync(async () =>
+            {
+                await ResetStatusAsync();
+
+                var demoSession = await this.AuthenticationService.StartDemoSession(role);
+                if (!demoSession.Success)
+                {
+                    _message = string.IsNullOrWhiteSpace(demoSession.Message)
+                        ? "Unable to start the demo workspace."
+                        : demoSession.Message;
+                    _alertType = "danger";
+                    return;
+                }
+
+                User.Email = demoSession.Email;
+                User.Password = demoSession.Password;
+                await CompleteLoginAsync();
+            });
+        }
+
+        private async Task CompleteLoginAsync()
+        {
+            var result = await this.AuthenticationService.LoginUser(this.User);
+
+            if (!result.Success)
+            {
+                _message = string.IsNullOrWhiteSpace(result.Message) ? "Unable to sign you in right now." : result.Message;
+                await NotificationService.ShowErrorBarAsync(MESSAGEBAR_SECTION, title: _message);
+                return;
+            }
+
+            await this.TokenService.StoreJwtTokenAsync(Constant.TokenStorage.Key, result.Token);
+
+            (this.AuthStateProvider as CustomAuthStateProvider)!.NotifyAuthenticationState();
+            await this.SessionEventPublisher.PublishSignedInAsync();
+
+            var authState = await this.AuthStateProvider.GetAuthenticationStateAsync();
+            var targetRoute = ResolveTargetRoute(authState.User);
+
+            this.NavigationManager.NavigateTo(targetRoute);
+        }
+
+        private async Task ResetStatusAsync()
+        {
+            _message = string.Empty;
+            _alertType = string.Empty;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        private string ResolveTargetRoute(ClaimsPrincipal user)
+        {
+            return ProtectedRouteRedirectResolver.ResolvePostLoginPath(
+                this.Route,
+                user.IsInRole(Constant.Administration.AdminRole));
+        }
+    }
+}
